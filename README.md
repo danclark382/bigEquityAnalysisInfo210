@@ -1,1 +1,1 @@
-# bigEquityAnalysisInfo210
+Initial commit
