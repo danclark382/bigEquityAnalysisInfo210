@@ -1,5 +1,5 @@
 import scrapy
-
+import pandas
 
 class SecScrape(scrapy.Spider):
     name = "sec"
