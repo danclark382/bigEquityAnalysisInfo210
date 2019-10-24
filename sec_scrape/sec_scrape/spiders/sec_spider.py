@@ -1,5 +1,6 @@
 import scrapy
-
+from scrapy.loader import ItemLoader
+from sec_scrape.items import SecScrapeItem
 
 class SecScrape(scrapy.Spider):
     name = "sec"
@@ -17,13 +18,9 @@ class SecScrape(scrapy.Spider):
         tr = response.xpath('//tr/td/a').attrib['href']
         if tr is not None:
             next_page = response.urljoin(tr)
-            yield scrapy.Request(url=next_page, callback=self.download_doc)
-
-    def download_doc(self, response):
-        # file_urls = scrapy.Field({'file_urls': er})
-        with open('test123.html', 'wb') as f:
-            f.write(response.body)
-            self.log('Saved file %s' % 'test123.html')
+            loader = ItemLoader(item=SecScrapeItem(), selector=next_page)
+            loader.add_value('file_urls', next_page)
+            yield loader.load_item()
 
 
     def parse(self, response):
@@ -31,11 +28,7 @@ class SecScrape(scrapy.Spider):
         next_page = ''
         for td in tr.xpath('.//a[contains(@id, "documentsbutton")]'):
             next_page = td.attrib['href']
-        if next_page is not None:
-            next_page = response.urljoin(next_page)
-            yield scrapy.Request(url=next_page, callback=self.doc_page)
-#        page = response.url.split("/")[-1]
-#        filename = 'sec-%s.html' % page
-#        with open(filename, 'wb') as f:
-#            f.write(response.body)
-#        self.log('Saved file %s' % filename)
+            if next_page is not None:
+                next_page = response.urljoin(next_page)
+                yield scrapy.Request(url=next_page, callback=self.doc_page)
+

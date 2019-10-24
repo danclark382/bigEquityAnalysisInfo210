@@ -11,7 +11,7 @@
 
 BOT_NAME = 'sec_scrape'
 
-FILES_STORE='sec_files/'
+FILES_STORE = 'sec_files'
 SPIDER_MODULES = ['sec_scrape.spiders']
 NEWSPIDER_MODULE = 'sec_scrape.spiders'
 ITEM_PIPELINES = {'scrapy.pipelines.files.FilesPipeline': 1}
