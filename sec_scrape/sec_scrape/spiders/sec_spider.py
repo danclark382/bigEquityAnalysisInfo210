@@ -13,7 +13,7 @@ class SecScrape(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse)
 
     def doc_page(self, response):
-        filename = 'MSFT_' + response.xpath('.//div[contains(@class, "formContent")]')\
+        filename = 'MSFT_' + response.xpath('(//tr/td)[2]//text()').get() + '_' + response.xpath('.//div[contains(@class, "formContent")]')\
             .xpath('.//div[contains(@class, "info")][2]//text()').get()
         tr = response.xpath('//tr/td/a').attrib['href']
         if tr is not None:
