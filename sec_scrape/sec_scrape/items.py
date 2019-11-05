@@ -11,4 +11,5 @@ import scrapy
 class SecScrapeItem(scrapy.Item):
     file_urls = scrapy.Field()
     files = scrapy.Field()
+    myFile = scrapy.Field()
 

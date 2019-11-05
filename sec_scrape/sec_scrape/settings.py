@@ -14,7 +14,8 @@ BOT_NAME = 'sec_scrape'
 FILES_STORE = 'sec_files'
 SPIDER_MODULES = ['sec_scrape.spiders']
 NEWSPIDER_MODULE = 'sec_scrape.spiders'
-ITEM_PIPELINES = {'scrapy.pipelines.files.FilesPipeline': 1}
+# ITEM_PIPELINES = {'scrapy.pipelines.files.FilesPipeline': 1}
+ITEM_PIPELINES = {'sec_scrape.pipelines.SecScrapePipeline': 200}
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'sec_scrape (+http://www.yourdomain.com)'
