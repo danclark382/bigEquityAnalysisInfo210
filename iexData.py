@@ -2,6 +2,7 @@ import json
 from iexfinance.stocks import get_historical_data
 from iexfinance.stocks import Stock
 import pandas as pd
+import plotly
 import plotly.graph_objects as go
 from datetime import datetime
 import os
@@ -35,6 +36,7 @@ def getPriceHistory(ticker):
     :return: df of price history
     :return type: Dataframe()
     """
+    global DATADIR
     startDate = datetime(2015, 1, 1)
     endDate = datetime(2019, 12, 25)
     df = get_historical_data(ticker, start=startDate, end=endDate, output_format='pandas', token=IEX_TOKEN)
@@ -57,7 +59,7 @@ def plotDf(df, ticker):
     :return: True
     :return type: Boolean
     """
-    fig = go.Figure(data=[go.Candlestick(x=df.index,
+    fig = plotly.offline.go.Figure(data=[go.Candlestick(x=df.index,
                                          open=df['open'],
                                          high=df['high'],
                                          low=df['low'],
@@ -76,13 +78,17 @@ def plotDf(df, ticker):
 def getHeadlines(stock, ticker):
     """Call IEX get_news to gather recent headlines for ticker.
 
-    This method gets the most recent headlines for a ticker
+    This method gets the most recent headlines for a ticker. get_news()
+	 returns a dictionary for one headline or a list of dictionarys for more.
+	 The max number of headlines returned is 10.
     :param ticker: Stock ticker to search for
     :type ticker: String
     :return: dictionary consisting of (date, headline) key, value pairs
     :return type: dictionary"""
-    # get_news() returns a list of dictionaries
-    headlines = stock.get_news()
+    news = stock.get_news()
+    newsDict = {ticker: {'newsHeadlines': news}}
+    with open('data/' + ticker + '/' + ticker + 'News.json') as jsonFile:
+        json.dump(newsDict, jsonFile)
     return headlines
 
 def dataImport():
@@ -94,8 +100,8 @@ def dataImport():
     for stockTicker in stockList['Ticker']:
         iexStock = generateStock(stockTicker)
         priceDf = getPriceHistory(stockTicker)
-        #plotDf(priceDf, stockTicker)
-        #getHeadlines(iexStock, stockTicker)
+        plotDf(priceDf, stockTicker)
+        getHeadlines(iexStock, stockTicker)
         break
 
 dataImport()
