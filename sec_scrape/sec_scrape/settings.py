@@ -11,13 +11,10 @@
 
 BOT_NAME = 'sec_scrape'
 
-FILES_STORE = 'sec_files'
+FILES_STORE = '/Users/dclark171/python/info212/bigEquityAnalysisInfo210/data'
 SPIDER_MODULES = ['sec_scrape.spiders']
 NEWSPIDER_MODULE = 'sec_scrape.spiders'
-<<<<<<< HEAD
 # ITEM_PIPELINES = {'scrapy.pipelines.files.FilesPipeline': 1}
-=======
->>>>>>> 7792416fbe88133ae22c6c1ec1de29f84efdb9ed
 ITEM_PIPELINES = {'sec_scrape.pipelines.SecScrapePipeline': 200}
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
