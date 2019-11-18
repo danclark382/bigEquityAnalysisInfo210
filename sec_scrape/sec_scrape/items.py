@@ -7,5 +7,4 @@ class SecScrapeItem(scrapy.Item):
     files = scrapy.Field()
     myFile = scrapy.Field()
     company = scrapy.Field()
-    directory = scrapy.Field()
-
+    fullPath = scrapy.Field()

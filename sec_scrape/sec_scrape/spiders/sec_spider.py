@@ -16,12 +16,12 @@ class SecScrape(scrapy.Spider):
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row in csv_reader:
                 # file = f'https://www.sec.gov/cgi-bin/browse-edgar?CIK={row[0]}&owner=exclude&action=getcompany&Find=Search'
-                urls.append(row)
-                break
+                urls.append(row[0])
         for url in urls:
-            #link = f'https://www.sec.gov/cgi-bin/browse-edgar?CIK={url}&owner=exclude&action=getcompany&Find=Search'
-            link = f'https://www.sec.gov/cgi-bin/browse-edgar?CIK=AAPL&owner=exclude&action=getcompany&Find=Search'
-            scrapedItem = SecScrapeItem(company='AAPL')
+            link = f'https://www.sec.gov/cgi-bin/browse-edgar?CIK={url[0]}&owner=exclude&action=getcompany&Find=Search'
+            # link = f'https://www.sec.gov/cgi-bin/browse-edgar?CIK=AAPL&owner=exclude&action=getcompany&Find=Search'
+            # scrapedItem = SecScrapeItem(company='AAPL')
+            scrapedItem = SecScrapeItem(company=url)
             yield scrapy.Request(url=link, callback=self.parse, meta={'item': scrapedItem})
 
     def doc_page(self, response):
@@ -30,7 +30,7 @@ class SecScrape(scrapy.Spider):
         company = response.meta['item']['company']
         global FILES_STORE
         if tr is not None:
-            newDir = FILES_STORE + company
+            fullPath = FILES_STORE + company
             next_page = response.urljoin(tr)
             try:
                 filename = company + '_' + response.xpath('(//tr/td)[2]//text()').get() + '_' + response.xpath('.//div[contains(@class, "formContent")]').xpath('.//div[contains(@class, "info")][2]//text()').get()
@@ -38,7 +38,7 @@ class SecScrape(scrapy.Spider):
             except TypeError:
                 filename = ''
             stockMeta['file_urls'] = next_page
-            stockMeta['directory'] = newDir
+            stockMeta['fullPath'] = fullPath
             stockMeta['company'] = company
             stockMeta['files'] = {next_page: filename}
             yield stockMeta
