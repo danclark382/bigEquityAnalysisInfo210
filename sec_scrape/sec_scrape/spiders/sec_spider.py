@@ -15,12 +15,12 @@ class SecScrape(scrapy.Spider):
         with open("sec_scrape/tickers.csv") as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row in csv_reader:
-                # file = f'https://www.sec.gov/cgi-bin/browse-edgar?CIK={row[0]}&owner=exclude&action=getcompany&Find=Search'
+                file = f'https://www.sec.gov/cgi-bin/browse-edgar?CIK={row[0]}&owner=exclude&action=getcompany&Find=Search'
                 urls.append(row[0])
         for url in urls:
             link = f'https://www.sec.gov/cgi-bin/browse-edgar?CIK={url[0]}&owner=exclude&action=getcompany&Find=Search'
-            # link = f'https://www.sec.gov/cgi-bin/browse-edgar?CIK=AAPL&owner=exclude&action=getcompany&Find=Search'
-            # scrapedItem = SecScrapeItem(company='AAPL')
+            #link = f'https://www.sec.gov/cgi-bin/browse-edgar?CIK=AAPL&owner=exclude&action=getcompany&Find=Search'
+            #scrapedItem = SecScrapeItem(company='AAPL')
             scrapedItem = SecScrapeItem(company=url)
             yield scrapy.Request(url=link, callback=self.parse, meta={'item': scrapedItem})
 

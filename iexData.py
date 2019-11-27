@@ -13,24 +13,25 @@ with open("myKeys.json") as jsonFile:
     IEX_TOKEN = data['keys']['iex']
 
 DATADIR = os.path.exists('data')
+#os.environ['IEX_API_VERSION'] = 'iexcloud-sandbox' This field turns the dummy data on
 
 def generateStock(ticker):
     """Generate stock object to return
 
-	 Create a stock object from ticker to call iex functions
-	 :param ticker: Stock ticker
-	 :type ticker: String
-	 :return: stock object
-	 :return type: iexfinance.stocks.Stock()
-	 """
+    Create a stock object from ticker to call iex functions
+    :param ticker: Stock ticker
+    :type ticker: String
+    :return: stock object
+    :return type: iexfinance.stocks.Stock()
+    """
     return Stock(ticker, token=IEX_TOKEN)
 
 def getPriceHistory(ticker):
     """Get the price history of ticker
 
     Get the historical prices of a ticker starting from startDate through endDate.
-	 Conver the dataframe to a CSV and save the file to a directory data/{ticker}/{ticker}.csv.
-	 If the directory data or data/ticker does not exit, make the directory.
+    Conver the dataframe to a CSV and save the file to a directory data/{ticker}/{ticker}.csv.
+    If the directory data or data/ticker does not exit, make the directory.
     :param ticker: Stock ticker
     :type ticker: String
     :return: df of price history
@@ -79,29 +80,33 @@ def getHeadlines(stock, ticker):
     """Call IEX get_news to gather recent headlines for ticker.
 
     This method gets the most recent headlines for a ticker. get_news()
-	 returns a dictionary for one headline or a list of dictionarys for more.
-	 The max number of headlines returned is 10.
+    returns a dictionary for one headline or a list of dictionarys for more.
+    The max number of headlines returned is 10.
     :param ticker: Stock ticker to search for
     :type ticker: String
     :return: dictionary consisting of (date, headline) key, value pairs
     :return type: dictionary"""
     news = stock.get_news()
     newsDict = {ticker: {'newsHeadlines': news}}
-    with open('data/' + ticker + '/' + ticker + 'News.json') as jsonFile:
+    with open('data/' + ticker + '/' + ticker + 'News.json', 'w') as jsonFile:
         json.dump(newsDict, jsonFile)
-    return headlines
+    return newsDict
 
 def dataImport():
     """Main entry point for iexData
 
     This method calls all functions that generate data and pipeline it to the respective directory.
     """
-    stockList = pd.read_csv('sec_scrape/tickers.csv')
+    stockList = pd.read_csv('sec_scrape/sec_scrape/tickers.csv')
     for stockTicker in stockList['Ticker']:
-        iexStock = generateStock(stockTicker)
-        priceDf = getPriceHistory(stockTicker)
-        plotDf(priceDf, stockTicker)
-        getHeadlines(iexStock, stockTicker)
-        break
+        try:
+            iexStock = generateStock(stockTicker)
+            #priceDf = getPriceHistory(stockTicker)
+            #print(stockTicker)
+            #plotDf(priceDf, stockTicker)
+            getHeadlines(iexStock, stockTicker)
+        except Exception as e:
+            print(f'ERROR: for {stockTicker}, error {e}')
+
 
 dataImport()

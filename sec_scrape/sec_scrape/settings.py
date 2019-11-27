@@ -16,6 +16,12 @@ SPIDER_MODULES = ['sec_scrape.spiders']
 NEWSPIDER_MODULE = 'sec_scrape.spiders'
 # ITEM_PIPELINES = {'scrapy.pipelines.files.FilesPipeline': 1}
 ITEM_PIPELINES = {'sec_scrape.pipelines.SecScrapePipeline': 200}
+#ITEM_PIPELINES = {'sec_scrape.pipelines.MongoDBPipeline': 200}
+
+MONGODB_SERVER = 'localhost'
+MONGODB_PORT = 27017
+MONGODB_DB = 'aapldb'
+MONGODB_COLLECTION = 'aapl'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'sec_scrape (+http://www.yourdomain.com)'
