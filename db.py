@@ -67,6 +67,12 @@ def insertNews(mydb, collection, news):
         print(collection + ' News Documents Stored: ' + str(i))
 
 
+def insertDocument(mydb, collection, doc):
+    """Insert a document into the mydb.collection"""
+    fs = gridfs.GridFS(mydb)
+    documentIn = fs.put(doc)
+
+
 myclient = pymongo.MongoClient(f"mongodb://{mongoUser}:{mongoPassword}@dsci210-shard-00-00-fknts.mongodb.net:27017,dsci210-shard-00-01-fknts.mongodb.net:27017,dsci210-shard-00-02-fknts.mongodb.net:27017/test?ssl=true&replicaSet=dsci210-shard-0&authSource=admin&retryWrites=true&w=majority")
 mydb = myclient['dbTest']
 dirList = getDirList()

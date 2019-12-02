@@ -15,7 +15,7 @@ class SecScrape(scrapy.Spider):
         with open("sec_scrape/tickers.csv") as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row in csv_reader:
-                file = f'https://www.sec.gov/cgi-bin/browse-edgar?CIK={row[0]}&owner=exclude&action=getcompany&Find=Search'
+                #file = f'https://www.sec.gov/cgi-bin/browse-edgar?CIK={row[0]}&owner=exclude&action=getcompany&Find=Search'
                 urls.append(row[0])
         for url in urls:
             link = f'https://www.sec.gov/cgi-bin/browse-edgar?CIK={url[0]}&owner=exclude&action=getcompany&Find=Search'
@@ -33,10 +33,11 @@ class SecScrape(scrapy.Spider):
             fullPath = FILES_STORE + company
             next_page = response.urljoin(tr)
             try:
-                filename = company + '_' + response.xpath('(//tr/td)[2]//text()').get() + '_' + response.xpath('.//div[contains(@class, "formContent")]').xpath('.//div[contains(@class, "info")][2]//text()').get()
+                filename = company + '__' + response.xpath('(//tr/td)[2]//text()').get() + '_' +\
+                           response.xpath('.//div[contains(@class, "formContent")]').xpath('.//div[contains(@class, "info")][2]//text()').get() + '__'
                 stockMeta['myFile'] = filename
             except TypeError:
-                filename = ''
+                return
             stockMeta['file_urls'] = next_page
             stockMeta['fullPath'] = fullPath
             stockMeta['company'] = company
