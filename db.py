@@ -26,6 +26,16 @@ def getFileList(dir):
     return dir+NEWS_HISTORY, dir+PRICE_HISTORY
 
 
+def getdocuments(dir):
+    for r, d, f in os.walk(os.path.join(os.getcwd(), 'sec_scape/sec_scrape/data/' + dir)):
+        if not ('.csv' in f or '.json' in f):
+            fileList.append(f)
+        files = []
+        for i in fileList:
+            files.append(i.split('__'))
+        return files
+
+
 def checkOS(path):
     if os.path.isfile(os.path.abspath(path)):
         return True
@@ -67,10 +77,17 @@ def insertNews(mydb, collection, news):
         print(collection + ' News Documents Stored: ' + str(i))
 
 
-def insertDocument(mydb, collection, doc):
+def insertdocument(mydb, doc):
     """Insert a document into the mydb.collection"""
+    if len(doc) != 3:
+        return False
     fs = gridfs.GridFS(mydb)
-    documentIn = fs.put(doc)
+    try:
+        date = doc[2].split('_')[-1]
+        documentIn = fs.put(doc, filename=doc[2], date=date)
+    except Exception as e:
+        return e
+    return True
 
 
 myclient = pymongo.MongoClient(f"mongodb://{mongoUser}:{mongoPassword}@dsci210-shard-00-00-fknts.mongodb.net:27017,dsci210-shard-00-01-fknts.mongodb.net:27017,dsci210-shard-00-02-fknts.mongodb.net:27017/test?ssl=true&replicaSet=dsci210-shard-0&authSource=admin&retryWrites=true&w=majority")
@@ -82,13 +99,15 @@ for dir in dirList:
     except NotADirectoryError:
         LOGGER.info(f'ERROR for {dir}')
         continue
-    news, csv = getFileList(dir)
-    if csv:
-        priceDict = getCSV(csv)
-        if priceDict:
-            insertPriceAction(mydb, dir, priceDict)
-    if news:
-        newsDict = getNews(news)
-        if newsDict:
-            insertNews(mydb, dir, newsDict)
+    #news, csv = getFileList(dir)
+    #if csv:
+    #    priceDict = getCSV(csv)
+    #    if priceDict:
+    #        insertPriceAction(mydb, dir, priceDict)
+    #if news:
+    #    newsDict = getNews(news)
+    #    if newsDict:
+    #        insertNews(mydb, dir, newsDict)
+    docList = getdocuments(dir)
+    docId = [insertdocument(mydb, f) for f in docList]
     os.chdir('..')
