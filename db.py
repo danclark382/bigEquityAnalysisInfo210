@@ -1,9 +1,11 @@
 import pymongo
+import gridfs
 import json
 import os
 import dns
 import pandas as pd
 import logging
+from pprint import pprint
 
 
 logging.basicConfig(level=logging.DEBUG, filename='stock.log', filemode='w')
@@ -22,11 +24,21 @@ def getDirList(dir='data'):
         return os.listdir()
     return False
 
+
 def getFileList(dir):
     return dir+NEWS_HISTORY, dir+PRICE_HISTORY
 
 
-def checkOS(path):
+def getDocuments(dir):
+    fileList = []
+    for r, d, f in os.walk(os.path.join(os.getcwd())):
+        for i in f:
+            if not ('.csv' in i or '.json' in i):
+                fileList.append(i.split('__'))
+    return fileList
+
+
+def checkos(path):
     if os.path.isfile(os.path.abspath(path)):
         return True
     return False
@@ -38,8 +50,9 @@ def getCSV(csv):
         dfDict = df.set_index('date').T.to_dict('dict')
         return dfDict
 
+
 def insertPriceAction(mydb, collection, priceDict):
-    mycol = mydb[collection]['priceAction']
+    mycol = mydb[collection]['priceHistory']
     for i, row in enumerate(priceDict.items()):
         date = row[0]
         open = row[1]['open']
@@ -47,15 +60,21 @@ def insertPriceAction(mydb, collection, priceDict):
         low = row[1]['low']
         close = row[1]['close']
         volume = row[1]['volume']
-        insertRow = {date: row[1]}
+        insertRow = {'date': date,
+                     'priceData': row[1]}
         x = mycol.insert_one(insertRow)
         print(collection + ' Price Documents Stored: ' + str(i))
+
 
 def getNews(news):
     if os.path.isfile(news):
         with open(news, 'r') as f:
             data = json.load(f)
-        return data
+        formattedNews = {'datetime':data[],
+                         'datetime':data[]
+                         'datetime':data[]
+                         'datetime':data[]
+                         'datetime':data[]}
     return False
 
 
@@ -67,10 +86,17 @@ def insertNews(mydb, collection, news):
         print(collection + ' News Documents Stored: ' + str(i))
 
 
-def insertDocument(mydb, collection, doc):
+def insertdocument(mydb, doc):
     """Insert a document into the mydb.collection"""
+    filePath = os.path.join(os.getcwd(), ''.join(doc))
+    if len(doc) != 3:
+        return False
     fs = gridfs.GridFS(mydb)
-    documentIn = fs.put(doc)
+    try:
+        date = doc[2].split('_')[-1]
+        documentIn = fs.put(open(filePath, 'rb'), filename=doc[1], date=date)
+    except Exception as e:
+        return e
 
 
 myclient = pymongo.MongoClient(f"mongodb://{mongoUser}:{mongoPassword}@dsci210-shard-00-00-fknts.mongodb.net:27017,dsci210-shard-00-01-fknts.mongodb.net:27017,dsci210-shard-00-02-fknts.mongodb.net:27017/test?ssl=true&replicaSet=dsci210-shard-0&authSource=admin&retryWrites=true&w=majority")
@@ -85,10 +111,16 @@ for dir in dirList:
     news, csv = getFileList(dir)
     if csv:
         priceDict = getCSV(csv)
-        if priceDict:
-            insertPriceAction(mydb, dir, priceDict)
+        #if priceDict:
+            #insertPriceAction(mydb, dir, priceDict)
     if news:
         newsDict = getNews(news)
         if newsDict:
             insertNews(mydb, dir, newsDict)
+    docList = getDocuments(dir)
+    if not docList:
+        continue
+    docId = [insertdocument(mydb, f) for f in docList]
     os.chdir('..')
+    quit()
+
