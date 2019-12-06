@@ -67,34 +67,39 @@ def insertPriceAction(mydb, collection, priceDict):
 
 
 def getNews(news):
+    company = news.split('NEWS.')[0]
     if os.path.isfile(news):
         with open(news, 'r') as f:
             data = json.load(f)
-        formattedNews = {'datetime':data[],
-                         'datetime':data[]
-                         'datetime':data[]
-                         'datetime':data[]
-                         'datetime':data[]}
+            newsList = []
+            for article in data[company]['newsHeadlines']:
+                formattedNews = {'Datetime': article['datetime'],
+                                 'Headline': article['headline'],
+                                 'Summary': article['summary'],
+                                 'Related': article['related'],
+                                 'Url': article['url'],
+                                 'Source': article['source']
+                                 }
+                newsList.append(formattedNews)
+            return newsList
     return False
 
 
 def insertNews(mydb, collection, news):
     mycol = mydb[collection]['news']
-    for i, row in enumerate(news.items()):
-        insertRow = {row[0]: row[1]}
-        x = mycol.insert_one(insertRow)
-        print(collection + ' News Documents Stored: ' + str(i))
+    x = mycol.insert_one({'Datetime': {str(news['Datetime']): news}})
 
 
 def insertdocument(mydb, doc):
     """Insert a document into the mydb.collection"""
-    filePath = os.path.join(os.getcwd(), ''.join(doc))
+    filePath = os.path.join(os.getcwd(), '__'.join(doc))
+    print(filePath)
     if len(doc) != 3:
         return False
     fs = gridfs.GridFS(mydb)
     try:
-        date = doc[2].split('_')[-1]
-        documentIn = fs.put(open(filePath, 'rb'), filename=doc[1], date=date)
+        documentIn = fs.put(open(filePath, 'rb'), Ticker=doc[0], Filename=doc[1], Date=doc[2].split('_')[-1], )
+        return fs.get(documentIn)
     except Exception as e:
         return e
 
@@ -111,16 +116,15 @@ for dir in dirList:
     news, csv = getFileList(dir)
     if csv:
         priceDict = getCSV(csv)
-        #if priceDict:
-            #insertPriceAction(mydb, dir, priceDict)
+        if priceDict:
+            insertPriceAction(mydb, dir, priceDict)
     if news:
-        newsDict = getNews(news)
-        if newsDict:
-            insertNews(mydb, dir, newsDict)
+        newsList = getNews(news)
+        if newsList:
+            [insertNews(mydb, dir, i) for i in newsList]
     docList = getDocuments(dir)
     if not docList:
         continue
     docId = [insertdocument(mydb, f) for f in docList]
     os.chdir('..')
-    quit()
 
